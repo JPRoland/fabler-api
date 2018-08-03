@@ -1,0 +1,33 @@
+{
+  "name": "soapbox-api",
+  "version": "0.1.0",
+  "main": "app.js",
+  "repository": "git@github.com:JPRoland/soapbox-api.git",
+  "author": "Joe Roland <joroland@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "cross-env DEBUG=soapbox-api node ./bin/www",
+    "start-dev": "cross-env DEBUG=soapbox-api nodemon ./bin/www"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.4",
+    "debug": "^3.1.0",
+    "dotenv": "^6.0.0",
+    "express": "^4.16.3",
+    "helmet": "^3.13.0",
+    "jsonwebtoken": "^8.3.0",
+    "morgan": "^1.9.0",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-local": "^1.0.0",
+    "pg": "^7.4.3",
+    "pg-hstore": "^2.3.2",
+    "sequelize": "^4.38.0"
+  },
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "nodemon": "^1.18.3"
+  }
+}

@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+const app = require('../app');
+const debug = require('debug')('soapbox-api');
+const http = require('http');
+const CONFIG = require('../config/config');
+const models = require('../models');
+
+const port = normalizePort(CONFIG.port || '3000');
+app.set('port', port);
+
+const server = http.createServer(app);
+
+models.sequelize.sync().then(() => {
+  server.listen(port, () => {
+    debug(`Server listening on port ${port}...`);
+  });
+  server.on('error', makeErrorHandler(port));
+  server.on('listening', makeListeningHandler(server));
+});
+
+function normalizePort(val) {
+  const port = parseInt(val, 10);
+
+  return isNaN(port) ? val : port >= 0 ? port : false;
+}
+
+function makeErrorHandler(port) {
+  return (err) => {
+    if(err.syscall !== 'listen') {
+      throw err;
+    }
+  
+    const bind = typeof port === 'string' ? `Pipe ${port}` : `Port ${port}`;
+  
+    switch(err.code) {
+      case 'EACCES':
+        console.error(`${bind} requires elevated privileges`);
+        process.exit(1);
+        break;
+      case 'EADDRINUSE':
+        console.error(`${bind} is already in use`);
+        process.exit(1);
+        break;
+      default:
+        throw err;
+    }
+  }
+}
+
+function makeListeningHandler(server) {
+  return () => {
+    const addr = server.address();
+    const bind = typeof addr === 'string' ? `pipe ${addr}` : `port ${addr.port}`;
+    debug(`Listening on ${bind}...`);
+  }
+}
