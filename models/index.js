@@ -4,17 +4,17 @@ const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
 const basename = path.basename(__filename);
-const CONFIG = require("../config/config");
+const CONFIG = require("../config/db");
 const db = {};
 
 const sequelize = new Sequelize(
-  CONFIG.db_name,
-  CONFIG.db_user,
-  CONFIG.db_pass,
+  CONFIG.development.database,
+  CONFIG.development.username,
+  CONFIG.development.password,
   {
-    host: CONFIG.db_host,
-    dialect: CONFIG.db_dialect,
-    port: CONFIG.db_port
+    host: CONFIG.development.host,
+    dialect: CONFIG.development.dialect,
+    port: CONFIG.development.port
   }
 );
 

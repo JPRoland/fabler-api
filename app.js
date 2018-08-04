@@ -4,7 +4,6 @@ const morgan = require("morgan");
 const passport = require("passport");
 const cors = require("cors");
 const helmet = require("helmet");
-const CONFIG = require("./config/config");
 
 const app = express();
 
