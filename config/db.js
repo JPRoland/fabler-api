@@ -1,14 +1,5 @@
 require("dotenv").config();
 
-CONFIG.db_host = process.env.DB_HOST;
-CONFIG.db_dialect = process.env.DB_DIALECT;
-CONFIG.db_port = process.env.DB_PORT;
-CONFIG.db_name = process.env.DB_NAME;
-CONFIG.db_user = process.env.DB_USER;
-CONFIG.db_pass = process.env.DB_PASS;
-
-CONFIG.jwt_secret = process.env.JWT_SECRET;
-
 module.exports = {
   development: {
     username: process.env.DB_USER,

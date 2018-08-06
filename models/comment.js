@@ -4,7 +4,8 @@ module.exports = (sequelize, DataTypes) => {
     body: DataTypes.TEXT
   }, {});
   Comment.associate = function(models) {
-    // associations can be defined here
+    Comment.belongsTo(models.User);
+    Comment.belongsTo(models.Article);
   };
   return Comment;
 };

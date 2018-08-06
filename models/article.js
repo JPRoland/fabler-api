@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
 
-  SequelizeSligify.slugifyModel(Article, {
+  SequelizeSlugify.slugifyModel(Article, {
     source: ["title"]
   });
 
