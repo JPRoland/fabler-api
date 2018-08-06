@@ -15,6 +15,8 @@ app.use(helmet());
 
 app.use(passport.initialize());
 
+app.use(require("./routes"));
+
 app.use("/", (req, res) => {
   res.send("Hello!");
 });
