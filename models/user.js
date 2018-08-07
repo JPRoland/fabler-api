@@ -1,4 +1,6 @@
 "use strict";
+const bcrypt = require("bcryptjs");
+
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
@@ -25,6 +27,27 @@ module.exports = (sequelize, DataTypes) => {
     },
     {}
   );
+
+  User.beforeSave(async (user, options) => {
+    if (user.changed("password")) {
+      try {
+        const hash = await bcrypt.hash(user.password, 11);
+        user.password = hash;
+      } catch (error) {
+        throw new Error(error.message);
+      }
+    }
+  });
+
+  User.prototype.comparePassword = async function(pass, cb) {
+    try {
+      const match = await bcrypt.compare(pass, this.password);
+      return cb(null, match);
+    } catch (error) {
+      return cb(error);
+    }
+  };
+
   User.associate = function(models) {
     User.hasMany(models.Article);
     User.hasMany(models.Favorite, { foreignKey: "userId" });
