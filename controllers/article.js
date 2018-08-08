@@ -3,6 +3,9 @@ const Article = require("../models").Article;
 const getArticles = async (req, res) => {
   // TODO
 };
+const getFeedArticles = async (req, res) => {
+  // TODO
+};
 const getArticleBySlug = async (req, res) => {
   // TODO
 };
@@ -41,5 +44,6 @@ module.exports = {
   createArticleComment,
   deleteArticleComment,
   favoriteArticle,
-  unfavoriteArticle
+  unfavoriteArticle,
+  getFeedArticles
 };

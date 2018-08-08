@@ -10,12 +10,12 @@ module.exports = {
     port: process.env.DB_PORT
   },
   test: {
-    username: process.env.CI_DB_USERNAME,
-    password: process.env.CI_DB_PASSWORD,
-    database: process.env.CI_DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT,
-    port: process.env.DB_PORT
+    username: process.env.TESTDB_USER,
+    password: process.env.TESTDB_PASS,
+    database: process.env.TESTDB_NAME,
+    host: process.env.TESTDB_HOST,
+    dialect: process.env.TESTDB_DIALECT,
+    port: process.env.TESTDB_PORT
   },
   production: {
     username: process.env.PROD_DB_USERNAME,
