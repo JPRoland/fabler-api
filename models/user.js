@@ -39,12 +39,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  User.prototype.comparePassword = async function(pass, cb) {
+  User.prototype.comparePassword = async function(pass) {
     try {
       const match = await bcrypt.compare(pass, this.password);
-      return cb(null, match);
+      return match;
     } catch (error) {
-      return cb(error);
+      throw new Error(error.message);
     }
   };
 
