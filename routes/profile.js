@@ -1,8 +1,20 @@
 const router = require("express").Router();
-const { profileController } = require("../controllers");
+const { profileController, authcontroller } = require("../controllers");
 
-router.get("/profiles/:username", profileController.getProfile);
-router.post("/profiles/:username/follow", profileController.follow);
-router.delete("/profiles/:username/follow", profileController.unfollow);
+router.get(
+  "/profiles/:username",
+  authcontroller.authOptional,
+  profileController.getProfile
+);
+router.post(
+  "/profiles/:username/follow",
+  authcontroller.requireAuth,
+  profileController.follow
+);
+router.delete(
+  "/profiles/:username/follow",
+  authcontroller.requireAuth,
+  profileController.unfollow
+);
 
 module.exports = router;

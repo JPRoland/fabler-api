@@ -3,5 +3,5 @@ module.exports = {
   articleController: require("./article"),
   tagController: require("./tag"),
   profileController: require("./profile"),
-  authcontroller: require("./auth");
+  authcontroller: require("./auth")
 };
