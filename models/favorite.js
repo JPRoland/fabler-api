@@ -3,13 +3,14 @@ module.exports = (sequelize, DataTypes) => {
   var Favorite = sequelize.define(
     "Favorite",
     {
-      userId: DataTypes.INTEGER,
-      articleId: DataTypes.INTEGER
+      UserId: DataTypes.INTEGER,
+      ArticleId: DataTypes.INTEGER
     },
     {}
   );
   Favorite.associate = function(models) {
-    // associations can be defined here
+    Favorite.belongsTo(models.User);
+    Favorite.belongsTo(models.Article);
   };
   return Favorite;
 };

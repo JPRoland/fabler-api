@@ -11,13 +11,15 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
-models.sequelize.sync().then(() => {
+if(CONFIG.app_env === 'dev') {
+  models.sequelize.sync().then(() => {
   server.listen(port, () => {
     debug(`Server listening on port ${port}...`);
   });
   server.on('error', makeErrorHandler(port));
   server.on('listening', makeListeningHandler(server));
 });
+}
 
 function normalizePort(val) {
   const port = parseInt(val, 10);

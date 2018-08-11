@@ -30,12 +30,12 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Article.associate = function(models) {
-    Article.belongsTo(models.User);
+    Article.belongsTo(models.User, { as: "Author" });
     Article.hasMany(models.Comment);
     Article.belongsToMany(models.Tag, { through: "ArticleTag" });
     Article.belongsToMany(models.User, {
       through: "Favorite",
-      foreignKey: "articleId"
+      foreignKey: "ArticleId"
     });
   };
   return Article;

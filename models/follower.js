@@ -3,8 +3,8 @@ module.exports = (sequelize, DataTypes) => {
   var Follower = sequelize.define(
     "Follower",
     {
-      userId: DataTypes.INTEGER,
-      followerId: DataTypes.INTEGER
+      UserId: DataTypes.INTEGER,
+      FollowerId: DataTypes.INTEGER
     },
     {}
   );
