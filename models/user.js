@@ -53,14 +53,14 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Favorite, { foreignKey: "UserId" });
     User.hasMany(models.Comment);
     User.belongsToMany(models.User, {
-      as: "follower",
-      through: "Follower",
-      foreignKey: "FollwerId"
+      as: "Follower",
+      through: "Followers",
+      foreignKey: "FollowerId"
     });
     User.belongsToMany(models.User, {
-      as: "user",
-      through: "Follower",
-      foreignKey: "UserId"
+      as: "Followed",
+      through: "Followers",
+      foreignKey: "FollowedId"
     });
     User.belongsToMany(models.Article, {
       through: "Favorite",

@@ -21,7 +21,7 @@ const localLogin = new LocalStrategy(
       if (!user) return done(null, false);
       const isMatch = user.comparePassword(password);
       if (!isMatch) return done(null, false);
-      return done(null, user);
+      return done(null, user.get());
     } catch (error) {
       return done(error);
     }
@@ -39,7 +39,7 @@ const jwtLogin = new JwtStrategy(jwtOptions, async (payload, done) => {
       attributes: { exclude: ["password"] }
     });
     if (!user) return done(null, false);
-    return done(null, user);
+    return done(null, user.get());
   } catch (error) {
     return done(error);
   }
