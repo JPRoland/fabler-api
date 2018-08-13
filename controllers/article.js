@@ -1,8 +1,68 @@
 const { Article, User, Tag } = require("../models");
 
 const getArticles = async (req, res, next) => {
-  // TODO
+  const { tag, author, favorited, offset = 0, limit = 20 } = req.query;
+
+  try {
+    let tagWhere, authorWhere, favoritedWhere;
+    if (tag) {
+      tagWhere = { name: tag };
+    }
+    if (author) {
+      authorWhere = { username: author };
+    }
+
+    const articles = await Article.findAll({
+      include: [
+        {
+          model: Tag,
+          attributes: ["name"],
+          where: tagWhere,
+          through: { attributes: [] }
+        },
+        {
+          model: User,
+          as: "Author",
+          where: authorWhere
+        }
+      ],
+      limit,
+      offset,
+      order: [["createdAt", "DESC"]]
+    });
+
+    const result = [];
+    // Set following status for each author
+    for (let article of articles) {
+      const following = req.user
+        ? await article.Author.hasFollower(req.user.id)
+        : false;
+
+      let returnedArticle = {
+        title: article.title,
+        description: article.description,
+        slug: article.slug,
+        body: article.body,
+        tags: article.Tags,
+        createdAt: article.createdAt,
+        updatedAt: article.updatedAt,
+        author: {
+          username: article.Author.username,
+          bio: article.Author.bio,
+          image: article.Author.image,
+          following
+        }
+      };
+
+      result.push(returnedArticle);
+    }
+
+    return res.json({ articles: result });
+  } catch (error) {
+    return next(error);
+  }
 };
+
 const getFeedArticles = async (req, res, next) => {
   // TODO
 };
@@ -53,8 +113,6 @@ const createArticle = async (req, res, next) => {
 
     builtArticle.addTags(tags);
     builtArticle.setAuthor(user);
-
-    // builtArticle = await builtArticle.save();
 
     return res.json({ article: builtArticle });
   } catch (error) {
