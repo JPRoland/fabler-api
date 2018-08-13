@@ -64,7 +64,30 @@ const getArticles = async (req, res, next) => {
 };
 
 const getFeedArticles = async (req, res, next) => {
-  // TODO
+  const { limit = 20, offset = 0 } = req.query;
+
+  try {
+    const user = await User.findById(req.user.id, {
+      include: [
+        {
+          model: User,
+          as: "Followed"
+        }
+      ]
+    });
+
+    const followedIds = user.Followed.map(f => f.id);
+
+    const articles = await Article.findAll({
+      where: { AuthorId: followedIds },
+      limit,
+      offset
+    });
+
+    res.json(articles);
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const getArticleBySlug = async (req, res, next) => {
