@@ -11,7 +11,11 @@ router.get(
   authcontroller.requireAuth,
   articleController.getFeedArticles
 );
-router.get("/articles/:slug", articleController.getArticleBySlug);
+router.get(
+  "/articles/:slug",
+  authcontroller.authOptional,
+  articleController.getArticleBySlug
+);
 
 router.post(
   "/articles",

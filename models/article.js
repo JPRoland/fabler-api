@@ -20,6 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       description: {
         type: DataTypes.STRING,
         allowNull: false
+      },
+      favoriteCount: {
+        type: DataTypes.INTEGER,
+        default: 0
       }
     },
     {}
@@ -29,13 +33,37 @@ module.exports = (sequelize, DataTypes) => {
     source: ["title"]
   });
 
+  Article.prototype.buildResult = async function(user) {
+    const following = user ? await this.Author.hasFollower(user.id) : false;
+    const favorited = user ? await this.hasFavoriter(user.id) : false;
+
+    return {
+      title: this.title,
+      description: this.description,
+      slug: this.slug,
+      body: this.body,
+      tags: this.Tags,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+      favoriteCount: this.favoriteCount,
+      favorited,
+      author: {
+        username: this.Author.username,
+        bio: this.Author.bio,
+        image: this.Author.image,
+        following
+      }
+    };
+  };
+
   Article.associate = function(models) {
     Article.belongsTo(models.User, { as: "Author" });
     Article.hasMany(models.Comment);
     Article.belongsToMany(models.Tag, { through: "ArticleTag" });
     Article.belongsToMany(models.User, {
       through: "Favorite",
-      foreignKey: "ArticleId"
+      foreignKey: "ArticleId",
+      as: "Favoriter"
     });
   };
   return Article;
