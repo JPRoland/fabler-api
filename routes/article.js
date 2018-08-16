@@ -43,7 +43,7 @@ router.get(
   articleController.getArticleComments
 );
 router.delete(
-  "/articles/:slug/comments",
+  "/articles/:slug/comments/:id",
   authcontroller.requireAuth,
   articleController.deleteArticleComment
 );

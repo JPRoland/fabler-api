@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       favoriteCount: {
         type: DataTypes.INTEGER,
-        default: 0
+        defaultValue: 0
       }
     },
     {}
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     source: ["title"]
   });
 
-  Article.prototype.buildResult = async function(user) {
+  Article.prototype.buildResponse = async function(user) {
     const following = user ? await this.Author.hasFollower(user.id) : false;
     const favorited = user ? await this.hasFavoriter(user.id) : false;
 

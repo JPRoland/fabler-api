@@ -12,7 +12,7 @@ app.set('port', port);
 const server = http.createServer(app);
 
 if(CONFIG.app_env === 'dev') {
-  models.sequelize.sync({force: true}).then(() => {
+  models.sequelize.sync().then(() => {
   server.listen(port, () => {
     debug(`Server listening on port ${port}...`);
   });

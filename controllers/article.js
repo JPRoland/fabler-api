@@ -1,6 +1,8 @@
-const { Article, User, Tag } = require("../models");
+const { Article, User, Tag, Comment } = require("../models");
+const assignDefined = require("../helpers/assignDefined");
 
 const getArticles = async (req, res, next) => {
+  // TODO get articles favorited by user
   const { tag, author, favorited, offset = 0, limit = 20 } = req.query;
 
   try {
@@ -31,13 +33,12 @@ const getArticles = async (req, res, next) => {
       order: [["createdAt", "DESC"]]
     });
 
-    const result = [];
-    // Build article objects to return and set following status for each author
+    const response = [];
     for (let article of articles) {
-      result.push(await article.buildResult(req.user));
+      result.push(await article.buildResponse(req.user));
     }
 
-    return res.json({ articles: result, articlesCount: result.length });
+    return res.json({ articles: response, articlesCount: result.length });
   } catch (error) {
     return next(error);
   }
@@ -65,12 +66,12 @@ const getFeedArticles = async (req, res, next) => {
       offset
     });
 
-    const result = [];
+    const response = [];
     for (let article of articles) {
-      result.push(await article.buildResult(req.user));
+      result.push(await article.buildResponse(req.user));
     }
 
-    res.json({ articles: result, articlesCount: result.length });
+    res.json({ articles: response, articlesCount: result.length });
   } catch (error) {
     return next(error);
   }
@@ -80,8 +81,7 @@ const getArticleBySlug = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    // TODO -Add favorite status and count
-    let article = await Article.findOne({
+    const article = await Article.findOne({
       where: { slug },
       include: [
         { model: Tag, attributes: ["name"], through: { attributes: [] } },
@@ -89,9 +89,9 @@ const getArticleBySlug = async (req, res, next) => {
       ]
     });
 
-    article = await article.buildResult(req.user);
+    let response = await article.buildResponse(req.user);
 
-    return res.json({ article });
+    return res.json({ article: response });
   } catch (error) {
     return next(error);
   }
@@ -121,8 +121,8 @@ const createArticle = async (req, res, next) => {
       tags.push(tagInstance[0]);
     }
 
-    builtArticle.addTags(tags);
-    builtArticle.setAuthor(user);
+    await builtArticle.addTags(tags);
+    await builtArticle.setAuthor(user);
 
     return res.json({ article: builtArticle });
   } catch (error) {
@@ -131,18 +131,46 @@ const createArticle = async (req, res, next) => {
 };
 
 const updateArticle = async (req, res, next) => {
-  // TODO
+  const { slug } = req.params;
+  const updates = assignDefined({}, req.body);
+
+  try {
+    const article = await Article.findOne({ where: { slug } });
+    if (article.AuthorId !== req.user.id) {
+      return res.sendStatus(403);
+    }
+
+    await article.update(updates, { returning: true });
+
+    return res.json({ article });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const deleteArticle = async (req, res, next) => {
-  // TODO
+  const { slug } = req.params;
+
+  try {
+    const article = await Article.findOne({ where: { slug } });
+
+    if (article.AuthorId !== req.user.id) {
+      return res.sendStatus(403);
+    }
+
+    await article.destroy();
+
+    return res.sendStatus(204);
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const favoriteArticle = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    let article = await Article.findOne({
+    const article = await Article.findOne({
       where: { slug },
       include: [{ model: User, as: "Author" }]
     });
@@ -152,9 +180,9 @@ const favoriteArticle = async (req, res, next) => {
     await article.setFavoriter(user);
     await article.increment("favoriteCount");
 
-    article = await article.buildResult(req.user.id);
+    let response = await article.buildResponse(req.user.id);
 
-    return res.json({ article });
+    return res.json({ article: response });
   } catch (error) {
     return next(error);
   }
@@ -164,7 +192,7 @@ const unfavoriteArticle = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    let article = await Article.findOne({
+    const article = await Article.findOne({
       where: { slug },
       include: [{ model: User, as: "Author" }]
     });
@@ -174,24 +202,71 @@ const unfavoriteArticle = async (req, res, next) => {
     await article.removeFavoriter(user);
     await article.decrement("favoriteCount");
 
-    article = await article.buildResult(req.user.id);
+    let response = await article.buildResponse(req.user.id);
 
-    return res.json({ article });
+    return res.json({ article: response });
   } catch (error) {
     return next(error);
   }
 };
 
 const createArticleComment = async (req, res, next) => {
-  // TODO
+  const { slug } = req.params;
+  const { comment } = req.body;
+
+  try {
+    const article = await Article.findOne({ where: { slug } });
+    const createdComment = await Comment.create({
+      body: comment.body,
+      UserId: req.user.id,
+      ArticleId: article.id
+    });
+
+    await createdComment.reload({ include: "User" });
+    const responseBody = await createdComment.buildResponse(req.user);
+    return res.json({ comment: responseBody });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const getArticleComments = async (req, res, next) => {
-  // TODO
+  const { slug } = req.params;
+
+  try {
+    const article = await Article.findOne({
+      where: { slug }
+    });
+    const comments = await article.getComments({ include: "User" });
+
+    const response = [];
+
+    for (let comment of comments) {
+      response.push(await comment.buildResponse(req.user));
+    }
+
+    return res.json({ comments: response });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 const deleteArticleComment = async (req, res, next) => {
-  // TODO
+  const { id } = req.params;
+
+  try {
+    const comment = await Comment.findById(id);
+
+    if (comment.UserId !== req.user.id) {
+      return res.sendStatus(403);
+    }
+
+    await comment.destroy();
+
+    return res.sendStatus(204);
+  } catch (error) {
+    return next(error);
+  }
 };
 
 module.exports = {
