@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Article.prototype.buildResponse = async function(user) {
     const following = user ? await this.Author.hasFollower(user.id) : false;
-    const favorited = user ? await this.hasFavoriter(user.id) : false;
+    const favorited = user ? await this.hasFavorited(user.id) : false;
 
     return {
       title: this.title,
@@ -61,9 +61,8 @@ module.exports = (sequelize, DataTypes) => {
     Article.hasMany(models.Comment);
     Article.belongsToMany(models.Tag, { through: "ArticleTag" });
     Article.belongsToMany(models.User, {
-      through: "Favorite",
-      foreignKey: "ArticleId",
-      as: "Favoriter"
+      through: { model: "Favorite", unique: false },
+      as: "Favorited"
     });
   };
   return Article;

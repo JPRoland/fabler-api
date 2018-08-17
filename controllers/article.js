@@ -1,9 +1,9 @@
-const { Article, User, Tag, Comment } = require("../models");
+const { Article, User, Tag, Comment, Favorite } = require("../models");
 const assignDefined = require("../helpers/assignDefined");
 
 const getArticles = async (req, res, next) => {
-  // TODO get articles favorited by user
   const { tag, author, favorited, offset = 0, limit = 20 } = req.query;
+  console.log(favorited);
 
   try {
     let tagWhere, authorWhere, favoritedWhere;
@@ -12,6 +12,9 @@ const getArticles = async (req, res, next) => {
     }
     if (author) {
       authorWhere = { username: author };
+    }
+    if (favorited) {
+      favoritedWhere = { username: favorited };
     }
 
     const articles = await Article.findAll({
@@ -26,6 +29,12 @@ const getArticles = async (req, res, next) => {
           model: User,
           as: "Author",
           where: authorWhere
+        },
+        {
+          model: User,
+          as: "Favorited",
+          where: favoritedWhere,
+          through: { attributes: [] }
         }
       ],
       limit,
@@ -35,10 +44,10 @@ const getArticles = async (req, res, next) => {
 
     const response = [];
     for (let article of articles) {
-      result.push(await article.buildResponse(req.user));
+      response.push(await article.buildResponse(req.user));
     }
 
-    return res.json({ articles: response, articlesCount: result.length });
+    return res.json({ articles: response, articlesCount: response.length });
   } catch (error) {
     return next(error);
   }
@@ -68,10 +77,10 @@ const getFeedArticles = async (req, res, next) => {
 
     const response = [];
     for (let article of articles) {
-      result.push(await article.buildResponse(req.user));
+      response.push(await article.buildResponse(req.user));
     }
 
-    res.json({ articles: response, articlesCount: result.length });
+    res.json({ articles: response, articlesCount: response.length });
   } catch (error) {
     return next(error);
   }
@@ -176,8 +185,11 @@ const favoriteArticle = async (req, res, next) => {
     });
     const user = await User.findById(req.user.id);
 
-    await user.setFavorited(article);
-    await article.setFavoriter(user);
+    await Favorite.create({
+      UserId: user.id,
+      ArticleId: article.id
+    });
+
     await article.increment("favoriteCount");
 
     let response = await article.buildResponse(req.user.id);
@@ -198,8 +210,9 @@ const unfavoriteArticle = async (req, res, next) => {
     });
     const user = await User.findById(req.user.id);
 
-    await user.removeFavorited(article);
-    await article.removeFavoriter(user);
+    await Favorite.destroy({
+      where: { UserId: user.id, ArticleId: article.id }
+    });
     await article.decrement("favoriteCount");
 
     let response = await article.buildResponse(req.user.id);
