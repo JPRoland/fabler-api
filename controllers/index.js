@@ -1,6 +1,6 @@
 module.exports = {
   userController: require("./user"),
-  articleController: require("./article"),
+  storyController: require("./story"),
   tagController: require("./tag"),
   profileController: require("./profile"),
   authcontroller: require("./auth")

@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.associate = function(models) {
-    User.hasMany(models.Article, { as: "Author", foreignKey: "AuthorId" });
+    User.hasMany(models.Story, { as: "Author", foreignKey: "AuthorId" });
     User.hasMany(models.Comment);
     User.belongsToMany(models.User, {
       as: "Follower",
@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
       through: "Followers",
       foreignKey: "FollowedId"
     });
-    User.belongsToMany(models.Article, {
+    User.belongsToMany(models.Story, {
       through: { model: "Favorite", unique: false },
       as: "Favoriter"
     });

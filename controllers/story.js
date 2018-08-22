@@ -1,7 +1,7 @@
-const { Article, User, Tag, Comment, Favorite } = require("../models");
+const { Story, User, Tag, Comment, Favorite } = require("../models");
 const assignDefined = require("../helpers/assignDefined");
 
-const getArticles = async (req, res, next) => {
+const getStories = async (req, res, next) => {
   const { tag, author, favorited, offset = 0, limit = 20 } = req.query;
   console.log(favorited);
 
@@ -17,7 +17,7 @@ const getArticles = async (req, res, next) => {
       favoritedWhere = { username: favorited };
     }
 
-    const articles = await Article.findAll({
+    const story = await Story.findAll({
       include: [
         {
           model: Tag,
@@ -43,17 +43,17 @@ const getArticles = async (req, res, next) => {
     });
 
     const response = [];
-    for (let article of articles) {
-      response.push(await article.buildResponse(req.user));
+    for (let story of stories) {
+      response.push(await story.buildResponse(req.user));
     }
 
-    return res.json({ articles: response, articlesCount: response.length });
+    return res.json({ stories: response, storiesCount: response.length });
   } catch (error) {
     return next(error);
   }
 };
 
-const getFeedArticles = async (req, res, next) => {
+const getFeedStories = async (req, res, next) => {
   const { limit = 20, offset = 0 } = req.query;
 
   try {
@@ -68,7 +68,7 @@ const getFeedArticles = async (req, res, next) => {
 
     const followedIds = user.Followed.map(f => f.id);
 
-    const articles = await Article.findAll({
+    const stories = await Story.findAll({
       where: { AuthorId: followedIds },
       include: { model: User, as: "Author" },
       limit,
@@ -76,21 +76,21 @@ const getFeedArticles = async (req, res, next) => {
     });
 
     const response = [];
-    for (let article of articles) {
-      response.push(await article.buildResponse(req.user));
+    for (let story of stories) {
+      response.push(await story.buildResponse(req.user));
     }
 
-    res.json({ articles: response, articlesCount: response.length });
+    res.json({ stories: response, storiesCount: response.length });
   } catch (error) {
     return next(error);
   }
 };
 
-const getArticleBySlug = async (req, res, next) => {
+const getStoryBySlug = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    const article = await Article.findOne({
+    const story = await Story.findOne({
       where: { slug },
       include: [
         { model: Tag, attributes: ["name"], through: { attributes: [] } },
@@ -98,16 +98,16 @@ const getArticleBySlug = async (req, res, next) => {
       ]
     });
 
-    let response = await article.buildResponse(req.user);
+    let response = await story.buildResponse(req.user);
 
-    return res.json({ article: response });
+    return res.json({ story: response });
   } catch (error) {
     return next(error);
   }
 };
 
-const createArticle = async (req, res, next) => {
-  const { article } = req.body;
+const createStory = async (req, res, next) => {
+  const { story } = req.body;
 
   try {
     const user = await User.findById(req.user.id);
@@ -115,59 +115,59 @@ const createArticle = async (req, res, next) => {
       return res.sendStatus(401);
     }
 
-    let builtArticle = await Article.create({
-      title: article.title,
-      body: article.body,
-      description: article.description
+    let builtStory = await Story.create({
+      title: story.title,
+      body: story.body,
+      description: story.description
     });
 
     let tags = [];
 
-    for (let tag of article.tags) {
+    for (let tag of story.tags) {
       const tagInstance = await Tag.findCreateFind({
         where: { name: tag.name }
       });
       tags.push(tagInstance[0]);
     }
 
-    await builtArticle.addTags(tags);
-    await builtArticle.setAuthor(user);
+    await builtStory.addTags(tags);
+    await builtStory.setAuthor(user);
 
-    return res.json({ article: builtArticle });
+    return res.json({ story: builtStory });
   } catch (error) {
     return next(error);
   }
 };
 
-const updateArticle = async (req, res, next) => {
+const updateStory = async (req, res, next) => {
   const { slug } = req.params;
   const updates = assignDefined({}, req.body);
 
   try {
-    const article = await Article.findOne({ where: { slug } });
-    if (article.AuthorId !== req.user.id) {
+    const story = await Story.findOne({ where: { slug } });
+    if (story.AuthorId !== req.user.id) {
       return res.sendStatus(403);
     }
 
-    await article.update(updates, { returning: true });
+    await story.update(updates, { returning: true });
 
-    return res.json({ article });
+    return res.json({ story });
   } catch (error) {
     return next(error);
   }
 };
 
-const deleteArticle = async (req, res, next) => {
+const deleteStory = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    const article = await Article.findOne({ where: { slug } });
+    const story = await Story.findOne({ where: { slug } });
 
-    if (article.AuthorId !== req.user.id) {
+    if (story.AuthorId !== req.user.id) {
       return res.sendStatus(403);
     }
 
-    await article.destroy();
+    await story.destroy();
 
     return res.sendStatus(204);
   } catch (error) {
@@ -175,11 +175,11 @@ const deleteArticle = async (req, res, next) => {
   }
 };
 
-const favoriteArticle = async (req, res, next) => {
+const favoriteStory = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    const article = await Article.findOne({
+    const story = await Story.findOne({
       where: { slug },
       include: [{ model: User, as: "Author" }]
     });
@@ -187,52 +187,52 @@ const favoriteArticle = async (req, res, next) => {
 
     await Favorite.create({
       UserId: user.id,
-      ArticleId: article.id
+      StoryId: story.id
     });
 
-    await article.increment("favoriteCount");
+    await story.increment("favoriteCount");
 
-    let response = await article.buildResponse(req.user.id);
+    let response = await story.buildResponse(req.user.id);
 
-    return res.json({ article: response });
+    return res.json({ story: response });
   } catch (error) {
     return next(error);
   }
 };
 
-const unfavoriteArticle = async (req, res, next) => {
+const unfavoriteStory = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    const article = await Article.findOne({
+    const story = await Story.findOne({
       where: { slug },
       include: [{ model: User, as: "Author" }]
     });
     const user = await User.findById(req.user.id);
 
     await Favorite.destroy({
-      where: { UserId: user.id, ArticleId: article.id }
+      where: { UserId: user.id, StoryId: story.id }
     });
-    await article.decrement("favoriteCount");
+    await story.decrement("favoriteCount");
 
-    let response = await article.buildResponse(req.user.id);
+    let response = await story.buildResponse(req.user.id);
 
-    return res.json({ article: response });
+    return res.json({ story: response });
   } catch (error) {
     return next(error);
   }
 };
 
-const createArticleComment = async (req, res, next) => {
+const createStoryComment = async (req, res, next) => {
   const { slug } = req.params;
   const { comment } = req.body;
 
   try {
-    const article = await Article.findOne({ where: { slug } });
+    const story = await Story.findOne({ where: { slug } });
     const createdComment = await Comment.create({
       body: comment.body,
       UserId: req.user.id,
-      ArticleId: article.id
+      StoryId: story.id
     });
 
     await createdComment.reload({ include: "User" });
@@ -243,14 +243,14 @@ const createArticleComment = async (req, res, next) => {
   }
 };
 
-const getArticleComments = async (req, res, next) => {
+const getStoryComments = async (req, res, next) => {
   const { slug } = req.params;
 
   try {
-    const article = await Article.findOne({
+    const story = await Story.findOne({
       where: { slug }
     });
-    const comments = await article.getComments({ include: "User" });
+    const comments = await story.getComments({ include: "User" });
 
     const response = [];
 
@@ -264,7 +264,7 @@ const getArticleComments = async (req, res, next) => {
   }
 };
 
-const deleteArticleComment = async (req, res, next) => {
+const deleteStoryComment = async (req, res, next) => {
   const { id } = req.params;
 
   try {
@@ -283,15 +283,15 @@ const deleteArticleComment = async (req, res, next) => {
 };
 
 module.exports = {
-  getArticles,
-  getArticleBySlug,
-  getArticleComments,
-  createArticle,
-  updateArticle,
-  deleteArticle,
-  createArticleComment,
-  deleteArticleComment,
-  favoriteArticle,
-  unfavoriteArticle,
-  getFeedArticles
+  getStories,
+  getStoryBySlug,
+  getStoryComments,
+  createStory,
+  updateStory,
+  deleteStory,
+  createStoryComment,
+  deleteStoryComment,
+  favoriteStory,
+  unfavoriteStory,
+  getFeedStories
 };

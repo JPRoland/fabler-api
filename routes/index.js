@@ -1,7 +1,7 @@
 const router = require("express").Router();
 
 router.use("/api", require("./user"));
-router.use("/api", require("./article"));
+router.use("/api", require("./story"));
 router.use("/api", require("./tag"));
 router.use("/api", require("./profile"));
 

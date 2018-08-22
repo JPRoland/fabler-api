@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     "Favorite",
     {
       UserId: DataTypes.INTEGER,
-      ArticleId: DataTypes.INTEGER
+      StoryId: DataTypes.INTEGER
     },
     {}
   );

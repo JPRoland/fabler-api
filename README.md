@@ -1,6 +1,6 @@
-# SoapBox
+# Fabler
 
-SoapBox is social blogging platform, basically a Medium clone, dedicated to online rants, built with Node.js, Sequelize, and Postgres. It mostly follows the [RealWorld](https://github.com/gothinkster/realworld-example-apps) API spec.
+Fabler is social storytelling platform built with Node.js, Sequelize, and Postgres.
 
 # Getting Started
 

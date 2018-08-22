@@ -2,8 +2,8 @@
 const SequelizeSlugify = require("sequelize-slugify");
 
 module.exports = (sequelize, DataTypes) => {
-  var Article = sequelize.define(
-    "Article",
+  var Story = sequelize.define(
+    "Story",
     {
       title: {
         type: DataTypes.STRING,
@@ -29,11 +29,11 @@ module.exports = (sequelize, DataTypes) => {
     {}
   );
 
-  SequelizeSlugify.slugifyModel(Article, {
+  SequelizeSlugify.slugifyModel(Story, {
     source: ["title"]
   });
 
-  Article.prototype.buildResponse = async function(user) {
+  Story.prototype.buildResponse = async function(user) {
     const following = user ? await this.Author.hasFollower(user.id) : false;
     const favorited = user ? await this.hasFavorited(user.id) : false;
 
@@ -56,14 +56,14 @@ module.exports = (sequelize, DataTypes) => {
     };
   };
 
-  Article.associate = function(models) {
-    Article.belongsTo(models.User, { as: "Author" });
-    Article.hasMany(models.Comment);
-    Article.belongsToMany(models.Tag, { through: "ArticleTag" });
-    Article.belongsToMany(models.User, {
+  Story.associate = function(models) {
+    Story.belongsTo(models.User, { as: "Author" });
+    Story.hasMany(models.Comment);
+    Story.belongsToMany(models.Tag, { through: "StoryTag" });
+    Story.belongsToMany(models.User, {
       through: { model: "Favorite", unique: false },
       as: "Favorited"
     });
   };
-  return Article;
+  return Story;
 };
