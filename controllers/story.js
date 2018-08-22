@@ -3,7 +3,6 @@ const assignDefined = require("../helpers/assignDefined");
 
 const getStories = async (req, res, next) => {
   const { tag, author, favorited, offset = 0, limit = 20 } = req.query;
-  console.log(favorited);
 
   try {
     let tagWhere, authorWhere, favoritedWhere;
@@ -17,7 +16,7 @@ const getStories = async (req, res, next) => {
       favoritedWhere = { username: favorited };
     }
 
-    const story = await Story.findAll({
+    const stories = await Story.findAll({
       include: [
         {
           model: Tag,
