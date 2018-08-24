@@ -4,6 +4,7 @@ router.use("/api", require("./user"));
 router.use("/api", require("./story"));
 router.use("/api", require("./tag"));
 router.use("/api", require("./profile"));
+router.use("/api", require("./genre"));
 
 router.use((err, req, res, next) => {
   if (err.name === "ValidationError") {

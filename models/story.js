@@ -43,6 +43,7 @@ module.exports = (sequelize, DataTypes) => {
       slug: this.slug,
       body: this.body,
       tags: this.Tags,
+      genres: this.Genres,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
       favoriteCount: this.favoriteCount,
@@ -60,6 +61,7 @@ module.exports = (sequelize, DataTypes) => {
     Story.belongsTo(models.User, { as: "Author" });
     Story.hasMany(models.Comment);
     Story.belongsToMany(models.Tag, { through: "StoryTag" });
+    Story.belongsToMany(models.Genre, { through: "StoryGenre" });
     Story.belongsToMany(models.User, {
       through: { model: "Favorite", unique: false },
       as: "Favorited"

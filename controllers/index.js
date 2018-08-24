@@ -3,5 +3,6 @@ module.exports = {
   storyController: require("./story"),
   tagController: require("./tag"),
   profileController: require("./profile"),
-  authcontroller: require("./auth")
+  authcontroller: require("./auth"),
+  genreController: require("./genre")
 };

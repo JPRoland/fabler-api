@@ -1,11 +1,11 @@
-const { Story, User, Tag, Comment, Favorite } = require("../models");
+const { Story, User, Tag, Comment, Favorite, Genre } = require("../models");
 const assignDefined = require("../helpers/assignDefined");
 
 const getStories = async (req, res, next) => {
-  const { tag, author, favorited, offset = 0, limit = 20 } = req.query;
+  const { tag, author, favorited, genre, offset = 0, limit = 20 } = req.query;
 
   try {
-    let tagWhere, authorWhere, favoritedWhere;
+    let tagWhere, authorWhere, favoritedWhere, genreWhere;
     if (tag) {
       tagWhere = { name: tag };
     }
@@ -14,6 +14,10 @@ const getStories = async (req, res, next) => {
     }
     if (favorited) {
       favoritedWhere = { username: favorited };
+    }
+
+    if (genre) {
+      genreWhere = { name: genre };
     }
 
     const stories = await Story.findAll({
@@ -33,6 +37,12 @@ const getStories = async (req, res, next) => {
           model: User,
           as: "Favorited",
           where: favoritedWhere,
+          through: { attributes: [] }
+        },
+        {
+          model: Genre,
+          attributes: ["name"],
+          where: genreWhere,
           through: { attributes: [] }
         }
       ],
@@ -93,7 +103,8 @@ const getStoryBySlug = async (req, res, next) => {
       where: { slug },
       include: [
         { model: Tag, attributes: ["name"], through: { attributes: [] } },
-        { model: User, as: "Author" }
+        { model: User, as: "Author" },
+        { model: Genre, attributes: ["name"], through: { attributes: [] } }
       ]
     });
 
@@ -129,6 +140,15 @@ const createStory = async (req, res, next) => {
       tags.push(tagInstance[0]);
     }
 
+    let genres = [];
+    for (let genre of story.genres) {
+      const genreInstance = await Genre.findCreateFind({
+        where: { name: genre.name }
+      });
+      genres.push(genreInstance[0]);
+    }
+
+    await builtStory.addGenres(genres);
     await builtStory.addTags(tags);
     await builtStory.setAuthor(user);
 
