@@ -1,13 +1,13 @@
 {
-  "name": "soapbox-api",
+  "name": "fabler-api",
   "version": "0.1.0",
   "main": "app.js",
-  "repository": "git@github.com:JPRoland/soapbox-api.git",
+  "repository": "git@github.com:JPRoland/fabler-api.git",
   "author": "Joe Roland <joroland@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "start": "cross-env DEBUG=soapbox-api node ./bin/www",
-    "dev": "cross-env DEBUG=soapbox-api nodemon ./bin/www"
+    "start": "cross-env DEBUG=fabler-api node ./bin/www",
+    "dev": "cross-env DEBUG=fabler-api nodemon ./bin/www"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
