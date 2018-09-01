@@ -135,7 +135,7 @@ const createStory = async (req, res, next) => {
 
     for (let tag of story.tags) {
       const tagInstance = await Tag.findCreateFind({
-        where: { name: tag.name }
+        where: { name: tag.name.toLowerCase() }
       });
       tags.push(tagInstance[0]);
     }
