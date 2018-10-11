@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const { tagController } = require("../controllers");
 
-router.get("/tag", tagController.getTags);
+router.get("/tags", tagController.getTags);
 
 module.exports = router;

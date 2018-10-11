@@ -2,6 +2,8 @@
 
 Fabler is social storytelling platform built with Node.js, Sequelize, and Postgres.
 
+API Documentation: https://documenter.getpostman.com/view/5586492/RWgqVyne
+
 # Getting Started
 
 To run the server locally:
